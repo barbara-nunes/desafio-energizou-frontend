@@ -1,75 +1,48 @@
 import { Button, Heading } from "@barbara-ignite-ui/react"
+
 import axios from "axios"
+
 import { Pencil, Trash } from "phosphor-react"
-import { useState } from "react"
-import { Navigate } from "react-router-dom"
-import { ContainerButton } from "../styles/Home.styles"
+
+import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+
 import { ListContainer, Table, TableHeaderContainer, TD, TR } from "../styles/ListCompanies.styles"
 
-export function ListCompanies () {
-  const companies = [
-    {
-      name:'Empresa teste15455555555555555555',
-      cnpj: 'XX.XXX.XXX/XXXX-XX',
-      id: '',
-      email: "email@ema4534543543455555.com"
-    },
+export function ListCompanies ({searchCompanies} : {searchCompanies: string}) {
+  const navigate = useNavigate();
 
-    {
-      name:'Empresa teste2',
-      cnpj: 'XX.XXX.XXX/XXXX-XX',
-      id: '',
-      email: "email@email.com"
-    },
-
-    {
-      name:'Empresa teste3',
-      cnpj: 'XX.XXX.XXX/XXXX-XX',
-      id: '',
-      email: "email@email.com"
-    },
-  ]
-
-  const baseURL = "https://http://localhost:3333/company";
-
-  const [goToNewCompanies, setGoToNewCompanies] = useState(false)
-  function registerNewCompanies() {
-    setGoToNewCompanies(true)
-  }
-
-  const [goToCompany, setGoToCompany] = useState(false)
-  function editCompany() {
-    setGoToCompany(true)
-  }
-
-  const [listCompanies, setListCompanies] = useState<string[]>([])
-
-  function handleDeleteCompany(companyToDelete:string) {
-    console.log("teste")
-    const activeCompanies = listCompanies.filter((company) => company !== companyToDelete)
-    setListCompanies(activeCompanies)
+  const baseURL = "http://localhost:3333/company";
+  const [listCompanies, setListCompanies] = useState<[]>([])
   
-  }
+  useEffect(() => {
+     axios.get(`${baseURL}/${searchCompanies}`).then((response) => {
+       const list = response.data.companies ? response.data.companies : response.data
+       setListCompanies(list)
+     });
+   }, [searchCompanies])
 
-  const handleDelete = (data:any) => {
-    console.log(data);
-    axios.delete(`${baseURL}/:id`).then((response) => {
-        /* setPost(response.data); */
-      });
+  function handleDeleteCompany(id:number) {
+    axios.delete(`${baseURL}/${id}`)
+    axios.get(`${baseURL}`).then((response) => {
+      setListCompanies(response.data.companies); 
+    });
   }
   
-
   return (
         <ListContainer>
           <TableHeaderContainer>
-            <Heading>Empresas Cadastradas</Heading>
-            
-          <Button variant="primary" onClick={() => registerNewCompanies()}>
-            {goToNewCompanies && <Navigate to="/NewCompanies" replace={true} />}
+             {listCompanies?.length ? 
+             (<Heading>Empresas Cadastradas</Heading>) :
+            (<Heading>Não há Empresas Cadastradas</Heading>
+            )}
+  
+          <Button variant="primary" onClick={() => navigate("/DataCompanies")}>
             Cadastrar novas empresas
           </Button>
           </TableHeaderContainer>
         <Table>
+          { listCompanies?.length ? (
           <TR>
             <TD>Nome</TD>
             <TD>CNPJ</TD>
@@ -77,17 +50,16 @@ export function ListCompanies () {
             <TD>Editar</TD>
             <TD>Excluir</TD>
           </TR>
-            {companies.map((company) => {
+          ) : null}
+            {listCompanies?.map((company) => {
               return (
                   <TR key={company.id}>
-                    <TD>{company.name}</TD>
-                    <TD>{company.cnpj}</TD>
-                    <TD>{company.email}</TD>
-                    <TD><Pencil onClick={() => editCompany()}/> </TD>
+                    <TD>{company.companyName}</TD>
+                    <TD>{company.companyCnpj}</TD>
+                    <TD>{company.companyEmail}</TD>
+                    <TD><Pencil onClick={() => navigate(`DataCompanies/${company.id}`)}/></TD>
                     <TD>
-                      <Trash onClick={() => handleDeleteCompany(company.name)}/>
-                      
-                    {goToCompany && <Navigate to="/NewCompanies" replace={true} />}
+                      <Trash onClick={() => handleDeleteCompany(company.id)}/>
                     </TD>
                   </TR> 
               )

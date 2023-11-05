@@ -1,21 +1,15 @@
-import { Button, TextInput } from "@barbara-ignite-ui/react"
+import { TextInput } from "@barbara-ignite-ui/react"
 import { FormEvent, useState } from "react"
-import { Navigate } from "react-router-dom"
+
+import { Body, Container } from "../styles/Home.styles"
+
+import ListCompanies from "./ListCompanies"
 import Footer from "../Footer"
 import Header from "../Header"
-import { Body, Container, ContainerButton } from "../styles/Home.styles"
-import ListCompanies from "./ListCompanies"
 
 export function Search () {
 
-  const [goToNewCompanies, setGoToNewCompanies] = useState(false)
-  function registerNewCompanies() {
-    setGoToNewCompanies(true)
-  }
-
   const [searchCompanies, setSearchCompanies] = useState('')
-  console.log(searchCompanies);
-
 
   function handleSearchCompanies(event: FormEvent) {
     event.preventDefault()
@@ -28,18 +22,17 @@ export function Search () {
      <Header />
 
       <Container>
-      <form onSubmit={handleSearchCompanies}>
-        <TextInput 
-          value={searchCompanies}
-          onChange={value => setSearchCompanies(value.target.value)}
-          type="text" 
-          placeholder="Consulte as empresas cadastradas" 
-          required
-        />
-      </form>
-      <Button variant="primary" type="submit">Pesquisar</Button>
+          <form onSubmit={handleSearchCompanies}>
+            <TextInput 
+              value={searchCompanies}
+              onChange={value => setSearchCompanies(value.target.value)}
+              type="text" 
+              placeholder="Pesquisar empresas cadastradas por CPNJ" 
+              required
+            />
+          </form>
       </Container>
-      <ListCompanies />
+      <ListCompanies searchCompanies={searchCompanies}/>
 
       <Footer />
 
